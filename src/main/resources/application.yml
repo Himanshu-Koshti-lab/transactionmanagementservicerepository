@@ -11,3 +11,9 @@
 #spring:
 #  application:
 #    name: transactionManagement-service
+
+security:
+  oauth2:
+    client:
+      clientId: ABCD
+      clientSecret: ABCD

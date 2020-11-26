@@ -43,7 +43,6 @@ public class TransactionService {
 
 	public TransactionResponse saveTransaction(TransactionRecord saveTransfer) {
 		TransactionResponse response = new TransactionResponse();
-		;
 		TransactionRecord savetransfer = new TransactionRecord();
 
 		Account senderAccount = accountRepository.findByAccountNumber(saveTransfer.getSenderAccountNumber());

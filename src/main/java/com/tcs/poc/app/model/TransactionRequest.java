@@ -8,5 +8,5 @@ public class TransactionRequest {
 	private long senderAccountNumber;
 	private long receiverAccountNumber;
 	private Double amount;
-	private String transactionSuccessful;
+	//private String transactionSuccessful;
 }

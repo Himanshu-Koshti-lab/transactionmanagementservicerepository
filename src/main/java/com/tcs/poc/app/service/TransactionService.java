@@ -78,55 +78,28 @@ public class TransactionService {
 //
 //	}
 
-	public TransactionResponse FundTransfer(TransactionRequest request) throws Exception {
+	public TransactionResponse FundTransfer(TransactionRequest request) {
 		Long senderAccountNumber = request.getSenderAccountNumber();
 		Long receiverAccountNumber = request.getReceiverAccountNumber();
 		Double amount = request.getAmount();
-		System.out.println(senderAccountNumber +"  "+ receiverAccountNumber + "  "+ amount  );
-		
 		Account senderAccount = accountRepository.findByAccountNumber(senderAccountNumber);
 		Account receiverAccount = accountRepository.findByAccountNumber(receiverAccountNumber);
-		
-		System.out.println(senderAccount.getAccountNumber() + " " + receiverAccount.getAccountNumber() + " " + amount );
 		TransactionResponse response = new TransactionResponse();
 		if (senderAccount == null) {
-			System.out.println("Sender Khali hai");
-			throw new Exception();
+			response.setTransactionStatus(0);
+			response.setMessage("Sender Account not Found");
+			return response;
 		} else if (receiverAccount == null) {
-			System.out.println("Receiever ka bank hi nahi hai");
-			throw new Exception();
-		} else if (senderAccount.getBalance() <= amount) {
-			System.out.println("ja gareeb mar ja");
-			System.out.println("Fund transfer denied processing");
+			response.setTransactionStatus(0);
+			response.setMessage("Reciever Account not Found");
+			return response;
+		} else if (senderAccount.getBalance() < amount || amount <= 0) {
 			TransactionRecord record = new TransactionRecord();
 			record.setTransactionStatus(0);
 			record.setCreatedBy("system");
 			record.setCreatedDate(new Date());
 			record.setModifiedBy("system");
-			record.setLastModifiedDate(new Date());
-			record.setUserId(senderAccount.getUserId());
-			record.setBalance(senderAccount.getBalance());
-			record.setAmount(amount);
-			record.setSenderAccountNumber(senderAccountNumber);
-			record.setReceiverAccountNumber(receiverAccountNumber);			
-			TransactionRecord savedRecord = transactionRepository.save(record);
-			response.setTransactionId(savedRecord.getTransactionId());
-			response.setSenderAccountNumber(senderAccountNumber);
-			response.setReceiverAccountNumber(receiverAccountNumber);
-			response.setAmount(amount);
-			response.setTransactionStatus(record.getTransactionStatus());
-			return response;
-		} else {
-			System.out.println("Fund transfer processing");
-			TransactionRecord record = new TransactionRecord();
-			senderAccount.setBalance(senderAccount.getBalance() - (amount));
-			accountRepository.save(senderAccount);
-			receiverAccount.setBalance(receiverAccount.getBalance() + (amount));
-			accountRepository.save(receiverAccount);
-			record.setTransactionStatus(1);
-			record.setCreatedBy("system");
-			record.setCreatedDate(new Date());
-			record.setModifiedBy("system");
+			record.setTransactionType("Debit");
 			record.setLastModifiedDate(new Date());
 			record.setUserId(senderAccount.getUserId());
 			record.setBalance(senderAccount.getBalance());
@@ -134,15 +107,46 @@ public class TransactionService {
 			record.setSenderAccountNumber(senderAccountNumber);
 			record.setReceiverAccountNumber(receiverAccountNumber);
 			TransactionRecord savedRecord = transactionRepository.save(record);
-			response.setTransactionId(savedRecord.getTransactionId());
-			response.setSenderAccountNumber(senderAccountNumber);
-			response.setReceiverAccountNumber(receiverAccountNumber);
-			response.setAmount(amount);
-			response.setTransactionStatus(1);
+			response.setTransactionStatus(record.getTransactionStatus());
+			response.setMessage("Transaction Failed");
+			return response;
+		} else {
+			System.out.println("Fund transfer processing");
+			TransactionRecord SenderRecord = new TransactionRecord();
+			TransactionRecord RecieverRecord = new TransactionRecord();
+			senderAccount.setBalance(senderAccount.getBalance() - (amount));
+			accountRepository.save(senderAccount);
+			receiverAccount.setBalance(receiverAccount.getBalance() + (amount));
+			accountRepository.save(receiverAccount);
+			//Sender Transaction Record Start//
+			SenderRecord.setTransactionStatus(1);
+			SenderRecord.setCreatedBy("system");
+			SenderRecord.setCreatedDate(new Date());
+			SenderRecord.setModifiedBy("system");
+			SenderRecord.setLastModifiedDate(new Date());
+			SenderRecord.setUserId(senderAccount.getUserId());
+			SenderRecord.setBalance(senderAccount.getBalance());
+			SenderRecord.setAmount(amount);
+			SenderRecord.setTransactionType("Debit");
+			SenderRecord.setSenderAccountNumber(senderAccountNumber);
+			SenderRecord.setReceiverAccountNumber(receiverAccountNumber);
+			transactionRepository.save(SenderRecord);
+			RecieverRecord.setTransactionStatus(1);
+			RecieverRecord.setCreatedBy("system");
+			RecieverRecord.setCreatedDate(new Date());
+			RecieverRecord.setModifiedBy("system");
+			RecieverRecord.setLastModifiedDate(new Date());
+			RecieverRecord.setUserId(receiverAccount.getUserId());
+			RecieverRecord.setBalance(receiverAccount.getBalance());
+			RecieverRecord.setAmount(amount);
+			RecieverRecord.setTransactionType("Credit");
+			RecieverRecord.setSenderAccountNumber(senderAccountNumber);
+			RecieverRecord.setReceiverAccountNumber(receiverAccountNumber);
+			transactionRepository.save(RecieverRecord);
+			response.setTransactionStatus(SenderRecord.getTransactionStatus());
+			response.setMessage("Transaction SuccessFull");
 			return response;
 		}
 	}
-
-	
 
 }

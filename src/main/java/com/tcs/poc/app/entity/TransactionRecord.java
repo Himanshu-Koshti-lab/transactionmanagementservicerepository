@@ -28,12 +28,7 @@ public class TransactionRecord {
 	@Column(name = "userId")
 	private Integer userId;
 
-	@Column(name = "transStartTime")
-	private Timestamp transStartTime;
-
-	@Column(name = "transEndTime")
-	private Timestamp transEndTime;
-
+	
 	@Column(name = "transactionType")
 	private String transactionType;
 

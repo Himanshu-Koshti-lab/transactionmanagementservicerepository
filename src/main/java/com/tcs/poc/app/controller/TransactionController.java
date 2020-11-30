@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tcs.poc.app.entity.TransactionRecord;
 import com.tcs.poc.app.model.TransactionRequest;
 import com.tcs.poc.app.model.TransactionResponse;
 import com.tcs.poc.app.service.TransactionService;
@@ -37,5 +36,5 @@ public class TransactionController {
 			return response;		
 			}
 	}
-
-}
+	
+	}

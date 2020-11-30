@@ -1,9 +1,6 @@
 package com.tcs.poc.app.service;
 
-import java.sql.Timestamp;
 import java.util.Date;
-
-import org.apache.tomcat.jni.Time;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +21,7 @@ public class TransactionService {
 
 	@Autowired
 	public TransactionRepository transactionRepository;
-
+	
 //	public TransactionResponse sendMoney(TransactionRecord transaction) {
 //		Long senderAccountNumber = transaction.getSenderAccountNumber();
 //		Long receiverAccountNumber = transaction.getReceiverAccountNumber();

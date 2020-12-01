@@ -165,6 +165,7 @@ public class TransactionService {
 			tempCustomer1.setReceiverAccountNumber(tempTransaction.get(i).getReceiverAccountNumber());
 			tempCustomer1.setAmount(tempTransaction.get(i).getAmount());
 			tempCustomer1.setTransactionStatus(tempTransaction.get(i).getTransactionStatus());
+			tempCustomer1.setTransactionType(tempTransaction.get(i).getTransactionType());
 			tempCustomer.add(tempCustomer1);
 
 		}

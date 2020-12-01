@@ -10,4 +10,5 @@ public class TransactionRecordResponse {
 	private long receiverAccountNumber;
 	private Double amount;
 	private int transactionStatus;
+	private String transactionType;
 }

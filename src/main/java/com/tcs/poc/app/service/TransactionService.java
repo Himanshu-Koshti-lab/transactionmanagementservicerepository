@@ -1,15 +1,20 @@
 package com.tcs.poc.app.service;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.tcs.poc.app.entity.Account;
 import com.tcs.poc.app.entity.TransactionRecord;
+import com.tcs.poc.app.model.TransactionRecordResponse;
 import com.tcs.poc.app.model.TransactionRequest;
 import com.tcs.poc.app.model.TransactionResponse;
 import com.tcs.poc.app.repository.AccountRepository;
 import com.tcs.poc.app.repository.TransactionRepository;
+
 
 @Service
 public class TransactionService {
@@ -21,7 +26,7 @@ public class TransactionService {
 
 	@Autowired
 	public TransactionRepository transactionRepository;
-	
+
 //	public TransactionResponse sendMoney(TransactionRecord transaction) {
 //		Long senderAccountNumber = transaction.getSenderAccountNumber();
 //		Long receiverAccountNumber = transaction.getReceiverAccountNumber();
@@ -115,7 +120,7 @@ public class TransactionService {
 			accountRepository.save(senderAccount);
 			receiverAccount.setBalance(receiverAccount.getBalance() + (amount));
 			accountRepository.save(receiverAccount);
-			//Sender Transaction Record Start//
+			// Sender Transaction Record Start//
 			SenderRecord.setTransactionStatus(1);
 			SenderRecord.setCreatedBy("system");
 			SenderRecord.setCreatedDate(new Date());
@@ -144,6 +149,27 @@ public class TransactionService {
 			response.setMessage("Transaction SuccessFull");
 			return response;
 		}
+	}
+
+	
+
+	public List<TransactionRecordResponse> getCustomerTransaction() {
+		List<TransactionRecord> tempTransaction = transactionRepository.findAll();
+		List<TransactionRecordResponse> tempCustomer = new ArrayList<TransactionRecordResponse>();
+
+		for (int i = 0; i < tempTransaction.size(); i++) {
+
+			TransactionRecordResponse tempCustomer1 = new TransactionRecordResponse();
+			tempCustomer1.setTransactionId(tempTransaction.get(i).getTransactionId());
+			tempCustomer1.setSenderAccountNumber(tempTransaction.get(i).getSenderAccountNumber());
+			tempCustomer1.setReceiverAccountNumber(tempTransaction.get(i).getReceiverAccountNumber());
+			tempCustomer1.setAmount(tempTransaction.get(i).getAmount());
+			tempCustomer1.setTransactionStatus(tempTransaction.get(i).getTransactionStatus());
+			tempCustomer.add(tempCustomer1);
+
+		}
+		return tempCustomer;
+
 	}
 
 }

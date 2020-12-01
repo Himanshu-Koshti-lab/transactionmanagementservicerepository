@@ -1,13 +1,18 @@
 package com.tcs.poc.app.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tcs.poc.app.model.TransactionRecordResponse;
 import com.tcs.poc.app.model.TransactionRequest;
 import com.tcs.poc.app.model.TransactionResponse;
 import com.tcs.poc.app.service.TransactionService;
@@ -35,6 +40,15 @@ public class TransactionController {
 			response.setMessage("loged user Mismatch");
 			return response;		
 			}
+	}
+	
+	
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_EMPLOYEE')")
+	@GetMapping(value = "/getCustomerTransaction")
+	@ResponseBody
+	public List<TransactionRecordResponse> getCustomerTransaction() {
+		List<TransactionRecordResponse> user = transactionService.getCustomerTransaction();
+		return user;
 	}
 	
 	}

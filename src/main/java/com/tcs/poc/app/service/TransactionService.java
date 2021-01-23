@@ -21,6 +21,7 @@ import com.tcs.poc.app.model.TransactionRequest;
 import com.tcs.poc.app.model.TransactionResponse;
 import com.tcs.poc.app.model.UserResponse;
 import com.tcs.poc.app.repository.TransactionRepository;
+import com.tcs.poc.app.utils.BankConstants;
 
 
 @Service
@@ -98,9 +99,9 @@ public class TransactionService {
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		HttpEntity<String> entity = new HttpEntity<String>(headers);
 		System.out.println("Calingrest");
-		ResponseEntity<AccountResponse> responseA = restTemplate.exchange("http://localhost:8084/getAccount/"+senderAccountNumber, HttpMethod.GET ,entity , AccountResponse.class);
+		ResponseEntity<AccountResponse> responseA = restTemplate.exchange(BankConstants.ACCOUNT_API_URL+"/getAccount/"+senderAccountNumber, HttpMethod.GET ,entity , AccountResponse.class);
 		AccountResponse senderAccount = responseA.getBody();
-		ResponseEntity<AccountResponse> responseB = restTemplate.exchange("http://localhost:8084/getAccount/"+receiverAccountNumber, HttpMethod.GET ,entity , AccountResponse.class);
+		ResponseEntity<AccountResponse> responseB = restTemplate.exchange(BankConstants.ACCOUNT_API_URL+"/getAccount/"+receiverAccountNumber, HttpMethod.GET ,entity , AccountResponse.class);
 		AccountResponse receiverAccount = responseB.getBody();
 		System.out.println("Calingrestend");
 		
@@ -144,13 +145,13 @@ public class TransactionService {
 		    headers2.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 		    HttpEntity<AccountResponse> entity1 = new HttpEntity<AccountResponse>(senderAccount,headers2);
 		    System.out.println("update start");
-		    restTemplate.exchange("http://localhost:8084/upDateBalance", HttpMethod.POST, entity1, String.class);
+		    restTemplate.exchange(BankConstants.ACCOUNT_API_URL+"/upDateBalance", HttpMethod.POST, entity1, String.class);
 		    System.out.println("upadte sender done");
 			receiverAccount.setBalance(receiverAccount.getBalance() + (amount));
 			//accountRepository.save(receiverAccount);
 			 HttpEntity<AccountResponse> entity2 = new HttpEntity<AccountResponse>(receiverAccount,headers2);
 			 System.out.println("update  recv start");
-			 restTemplate.exchange("http://localhost:8084/upDateBalance", HttpMethod.POST, entity2, String.class);
+			 restTemplate.exchange(BankConstants.ACCOUNT_API_URL+"/upDateBalance", HttpMethod.POST, entity2, String.class);
 			 System.out.println("upadte rece done");
 			// Sender Transaction Record Start//
 			SenderRecord.setTransactionStatus(1);
@@ -214,7 +215,7 @@ public class TransactionService {
 		headers4.set("Authorization", token);
 		headers4.setContentType(MediaType.APPLICATION_JSON);
 		HttpEntity<String> entity4 = new HttpEntity<String>(headers4);
-		ResponseEntity<UserResponse> responseU = restTemplate.exchange("http://localhost:8081/getUser", HttpMethod.GET ,entity4 , UserResponse.class);
+		ResponseEntity<UserResponse> responseU = restTemplate.exchange(BankConstants.USER_API_URL+"/getUser", HttpMethod.GET ,entity4 , UserResponse.class);
 		UserResponse user = responseU.getBody();
 		List<TransactionRecord> tempTransaction = transactionRepository.findAll();
 		List<TransactionRecordResponse> tempCustomer = new ArrayList<TransactionRecordResponse>();

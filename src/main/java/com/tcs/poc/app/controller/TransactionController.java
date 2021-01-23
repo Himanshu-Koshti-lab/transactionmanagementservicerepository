@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,18 +29,18 @@ public class TransactionController {
 //	public TransactionResponse sendMoney(@RequestBody TransactionRecord transaction) {
 //		return transactionService.sendMoney(transaction);
 //	}
-	@PreAuthorize("hasRole('ROLE_CUSTOMERS')")
+	@PreAuthorize("hasRole('ROLE_CUSTOMER')")
 	@PostMapping("/sendMoney")
 	public TransactionResponse sendMoney(@RequestBody TransactionRequest transaction,
-			@AuthenticationPrincipal String emailID) throws Exception {
-		if (transaction.getEmailID().equals(emailID)) {
-			return transactionService.FundTransfer(transaction);
-		} else {
-			TransactionResponse response = new TransactionResponse();
-			response.setTransactionStatus(0);
-			response.setMessage("loged user Mismatch");
-			return response;		
-			}
+			@AuthenticationPrincipal String emailID,@RequestHeader("Authorization") String token) throws Exception {
+//		if (transaction.getEmailID().equals(emailID)) {
+			return transactionService.FundTransfer(transaction,token);
+//		} else {
+//			TransactionResponse response = new TransactionResponse();
+//			response.setTransactionStatus(0);
+//			response.setMessage("loged user Mismatch");
+//			return response;		
+//			}
 	}
 	
 	
@@ -48,6 +49,14 @@ public class TransactionController {
 	@ResponseBody
 	public List<TransactionRecordResponse> getCustomerTransaction() {
 		List<TransactionRecordResponse> user = transactionService.getCustomerTransaction();
+		return user;
+	}
+	
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_EMPLOYEE','ROLE_CUSTOMER')")
+	@GetMapping(value = "/getMyTransaction")
+	@ResponseBody
+	public List<TransactionRecordResponse> getMyTransaction(@RequestHeader("Authorization") String token) {
+		List<TransactionRecordResponse> user = transactionService.getMyTransaction(token);
 		return user;
 	}
 	

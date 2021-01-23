@@ -1,18 +1,25 @@
 package com.tcs.poc.app.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
-import com.tcs.poc.app.entity.Account;
 import com.tcs.poc.app.entity.TransactionRecord;
+import com.tcs.poc.app.model.AccountResponse;
 import com.tcs.poc.app.model.TransactionRecordResponse;
 import com.tcs.poc.app.model.TransactionRequest;
 import com.tcs.poc.app.model.TransactionResponse;
-import com.tcs.poc.app.repository.AccountRepository;
+import com.tcs.poc.app.model.UserResponse;
 import com.tcs.poc.app.repository.TransactionRepository;
 
 
@@ -21,8 +28,8 @@ public class TransactionService {
 
 	TransactionService transactionService;
 
-	@Autowired
-	public AccountRepository accountRepository;
+//	@Autowired
+//	public AccountRepository accountRepository;
 
 	@Autowired
 	public TransactionRepository transactionRepository;
@@ -80,12 +87,26 @@ public class TransactionService {
 //
 //	}
 
-	public TransactionResponse FundTransfer(TransactionRequest request) {
+	public TransactionResponse FundTransfer(TransactionRequest request, String token) {
 		Long senderAccountNumber = request.getSenderAccountNumber();
 		Long receiverAccountNumber = request.getReceiverAccountNumber();
+		
 		Double amount = request.getAmount();
-		Account senderAccount = accountRepository.findByAccountNumber(senderAccountNumber);
-		Account receiverAccount = accountRepository.findByAccountNumber(receiverAccountNumber);
+		RestTemplate restTemplate = new RestTemplate();
+		HttpHeaders  headers = new HttpHeaders();
+		headers.set("Authorization", token);
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		HttpEntity<String> entity = new HttpEntity<String>(headers);
+		System.out.println("Calingrest");
+		ResponseEntity<AccountResponse> responseA = restTemplate.exchange("http://localhost:8084/getAccount/"+senderAccountNumber, HttpMethod.GET ,entity , AccountResponse.class);
+		AccountResponse senderAccount = responseA.getBody();
+		ResponseEntity<AccountResponse> responseB = restTemplate.exchange("http://localhost:8084/getAccount/"+receiverAccountNumber, HttpMethod.GET ,entity , AccountResponse.class);
+		AccountResponse receiverAccount = responseB.getBody();
+		System.out.println("Calingrestend");
+		
+		
+//		Account senderAccount = accountRepository.findByAccountNumber(senderAccountNumber);
+//		Account receiverAccount = accountRepository.findByAccountNumber(receiverAccountNumber);
 		TransactionResponse response = new TransactionResponse();
 		if (senderAccount == null) {
 			response.setTransactionStatus(0);
@@ -117,9 +138,20 @@ public class TransactionService {
 			TransactionRecord SenderRecord = new TransactionRecord();
 			TransactionRecord RecieverRecord = new TransactionRecord();
 			senderAccount.setBalance(senderAccount.getBalance() - (amount));
-			accountRepository.save(senderAccount);
+			//accountRepository.save(senderAccount);
+			HttpHeaders headers2 = new HttpHeaders();
+			headers2.set("Authorization", token);
+		    headers2.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+		    HttpEntity<AccountResponse> entity1 = new HttpEntity<AccountResponse>(senderAccount,headers2);
+		    System.out.println("update start");
+		    restTemplate.exchange("http://localhost:8084/upDateBalance", HttpMethod.POST, entity1, String.class);
+		    System.out.println("upadte sender done");
 			receiverAccount.setBalance(receiverAccount.getBalance() + (amount));
-			accountRepository.save(receiverAccount);
+			//accountRepository.save(receiverAccount);
+			 HttpEntity<AccountResponse> entity2 = new HttpEntity<AccountResponse>(receiverAccount,headers2);
+			 System.out.println("update  recv start");
+			 restTemplate.exchange("http://localhost:8084/upDateBalance", HttpMethod.POST, entity2, String.class);
+			 System.out.println("upadte rece done");
 			// Sender Transaction Record Start//
 			SenderRecord.setTransactionStatus(1);
 			SenderRecord.setCreatedBy("system");
@@ -171,6 +203,36 @@ public class TransactionService {
 		}
 		return tempCustomer;
 
+	}
+
+
+
+	public List<TransactionRecordResponse> getMyTransaction(String token) {
+		System.out.println("Inside getMyTransaction");
+		RestTemplate restTemplate = new RestTemplate();
+		HttpHeaders  headers4 = new HttpHeaders();
+		headers4.set("Authorization", token);
+		headers4.setContentType(MediaType.APPLICATION_JSON);
+		HttpEntity<String> entity4 = new HttpEntity<String>(headers4);
+		ResponseEntity<UserResponse> responseU = restTemplate.exchange("http://localhost:8081/getUser", HttpMethod.GET ,entity4 , UserResponse.class);
+		UserResponse user = responseU.getBody();
+		List<TransactionRecord> tempTransaction = transactionRepository.findAll();
+		List<TransactionRecordResponse> tempCustomer = new ArrayList<TransactionRecordResponse>();
+
+		for (int i = 0; i < tempTransaction.size(); i++) {
+			if(user.getUser_id() == tempTransaction.get(i).getUserId()) {
+				TransactionRecordResponse tempCustomer1 = new TransactionRecordResponse();
+				tempCustomer1.setTransactionId(tempTransaction.get(i).getTransactionId());
+				tempCustomer1.setSenderAccountNumber(tempTransaction.get(i).getSenderAccountNumber());
+				tempCustomer1.setReceiverAccountNumber(tempTransaction.get(i).getReceiverAccountNumber());
+				tempCustomer1.setAmount(tempTransaction.get(i).getAmount());
+				tempCustomer1.setTransactionStatus(tempTransaction.get(i).getTransactionStatus());
+				tempCustomer1.setTransactionType(tempTransaction.get(i).getTransactionType());
+				tempCustomer.add(tempCustomer1);
+			}	
+
+		}
+		return tempCustomer;
 	}
 
 }

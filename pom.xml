@@ -58,12 +58,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.tcs.poc.app</groupId>
-			<artifactId>UserManagementService</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>com.tcs.poc.app</groupId>
-			<artifactId>AccountManagementService</artifactId>
+			<artifactId>bankManagementConfig</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>

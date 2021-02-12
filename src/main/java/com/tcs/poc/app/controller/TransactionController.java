@@ -52,7 +52,6 @@ public class TransactionController {
 		headers.set("Authorization", token);
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		HttpEntity<String> entity = new HttpEntity<String>(headers);
-		System.out.println("Calingrest");
 		ResponseEntity<AccountResponse> responseA = restTemplate.exchange(BankConstants.ACCOUNT_API_URL+"/getAccount/"+transaction.getSenderAccountNumber(), HttpMethod.GET ,entity , AccountResponse.class);
 		AccountResponse senderAccount = responseA.getBody();
 		if (senderAccount.getUserId() == user.getUser_id()) {

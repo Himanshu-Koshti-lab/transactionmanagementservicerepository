@@ -98,12 +98,10 @@ public class TransactionService {
 		headers.set("Authorization", token);
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		HttpEntity<String> entity = new HttpEntity<String>(headers);
-		System.out.println("Calingrest");
 		ResponseEntity<AccountResponse> responseA = restTemplate.exchange(BankConstants.ACCOUNT_API_URL+"/getAccount/"+senderAccountNumber, HttpMethod.GET ,entity , AccountResponse.class);
 		AccountResponse senderAccount = responseA.getBody();
 		ResponseEntity<AccountResponse> responseB = restTemplate.exchange(BankConstants.ACCOUNT_API_URL+"/getAccount/"+receiverAccountNumber, HttpMethod.GET ,entity , AccountResponse.class);
 		AccountResponse receiverAccount = responseB.getBody();
-		System.out.println("Calingrestend");
 		
 		
 //		Account senderAccount = accountRepository.findByAccountNumber(senderAccountNumber);
@@ -135,7 +133,6 @@ public class TransactionService {
 			response.setMessage("Transaction Failed");
 			return response;
 		} else {
-			System.out.println("Fund transfer processing");
 			TransactionRecord SenderRecord = new TransactionRecord();
 			TransactionRecord RecieverRecord = new TransactionRecord();
 			senderAccount.setBalance(senderAccount.getBalance() - (amount));
@@ -144,15 +141,11 @@ public class TransactionService {
 			headers2.set("Authorization", token);
 		    headers2.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 		    HttpEntity<AccountResponse> entity1 = new HttpEntity<AccountResponse>(senderAccount,headers2);
-		    System.out.println("update start");
 		    restTemplate.exchange(BankConstants.ACCOUNT_API_URL+"/upDateBalance", HttpMethod.POST, entity1, String.class);
-		    System.out.println("upadte sender done");
-			receiverAccount.setBalance(receiverAccount.getBalance() + (amount));
+		    receiverAccount.setBalance(receiverAccount.getBalance() + (amount));
 			//accountRepository.save(receiverAccount);
 			 HttpEntity<AccountResponse> entity2 = new HttpEntity<AccountResponse>(receiverAccount,headers2);
-			 System.out.println("update  recv start");
 			 restTemplate.exchange(BankConstants.ACCOUNT_API_URL+"/upDateBalance", HttpMethod.POST, entity2, String.class);
-			 System.out.println("upadte rece done");
 			// Sender Transaction Record Start//
 			SenderRecord.setTransactionStatus(1);
 			SenderRecord.setCreatedBy("system");
@@ -210,7 +203,6 @@ public class TransactionService {
 
 
 	public List<TransactionRecordResponse> getMyTransaction(String token) {
-		System.out.println("Inside getMyTransaction");
 		RestTemplate restTemplate = new RestTemplate();
 		HttpHeaders  headers4 = new HttpHeaders();
 		headers4.set("Authorization", token);
